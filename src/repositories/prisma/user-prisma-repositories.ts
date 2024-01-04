@@ -62,48 +62,40 @@ export class UserPrismaRepository implements UserRepository {
         },
       });
 
-      if (!employer) throw new NotFoundException('Estabelecimento não encontrado')
-
-      const existEmployee = await this.prisma.employee.findUnique({
+      const userWithEmployeeEmail = await this.prisma.user.findUnique({
         where: {
           email: email,
         },
-      });
+      })
+      
+      if (!employer) throw new NotFoundException('Estabelecimento não encontrado')
 
-      if (!existEmployee) {
-        const salt = await bcrypt.genSalt(10);
-        password = await bcrypt.hash(password, salt);
-
-        return await this.prisma.employee.create({
-          data: {
-            user_id: employer.id,
-            name,
-            email,
-            lastname,
-            password,
-            type,
-          }
-        })
-
-        // return await this.prisma.user.update({
-        //   where: {
-        //     email: employerEmail,
-        //   },
-
-        //   data: {
-        //     employee: {
-        //       create: {
-        //         name,
-        //         email,
-        //         lastname,
-        //         password,
-        //         type,
-        //       },
-        //     },
-        //   },
-        // });
+      if (userWithEmployeeEmail) {
+        throw new NotImplementedException('Já existe conta com este email')
       } else {
-        throw new NotImplementedException('Funcionário já registrado')
+        const existEmployee = await this.prisma.employee.findUnique({
+          where: {
+            email: email,
+          },
+        });
+  
+        if (!existEmployee) {
+          const salt = await bcrypt.genSalt(10);
+          password = await bcrypt.hash(password, salt);
+  
+          return await this.prisma.employee.create({
+            data: {
+              user_id: employer.id,
+              name,
+              email,
+              lastname,
+              password,
+              type,
+            }
+          })
+        } else {
+          throw new NotImplementedException('Funcionário já registrado')
+        }
       }
     } catch (error) {
       console.error(error);
@@ -141,7 +133,7 @@ export class UserPrismaRepository implements UserRepository {
             {
               user: user.name,
               email: user.email,
-              userId: employer ? employer.id : employee.id,
+              userId: employer ? employer.id : employee.user_id,
               employeeId: employee ? employee.id : '',
             },
             env.SECRET_MESSAGE,
@@ -152,7 +144,7 @@ export class UserPrismaRepository implements UserRepository {
 
           return {
             token,
-            userId: employer ? employer.id : employee.id,
+            userId: employer ? employer.id : employee.user_id,
             employeeId: employee ? employee.id : '',
             expiresIn: 3600,
             user: user.name,
