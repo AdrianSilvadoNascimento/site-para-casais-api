@@ -172,4 +172,23 @@ export class UserPrismaRepository implements UserRepository {
       throw new Error(error);
     }
   }
+
+  async getAccountInfo(userId: string): Promise<EmployeeEntity> {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: {
+          id: userId,
+        },
+      })
+
+      if (!user) {
+        throw new NotFoundException('Não foi possível encontrar o user de ID:' + userId)
+      } else {
+        return user
+      }
+    } catch (error) {
+      console.error(error);
+      throw new Error(error);
+    }
+  }
 }

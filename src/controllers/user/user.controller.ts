@@ -1,8 +1,9 @@
-import { Body, Controller, NotAcceptableException, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 
 import { EmployeeModel } from '../../dtos/employee-model';
 import { UserModel } from '../../dtos/user-model';
 import { UserService } from '../../services/user/user.service';
+import { EmployeeEntity } from '../../entity/employee.entity';
 
 @Controller('user')
 export class UserController {
@@ -31,5 +32,10 @@ export class UserController {
       type,
       body.employerEmail
     );
+  }
+
+  @Get(':id/account-info')
+  async getAccountInfo(@Param('id') userId: string): Promise<EmployeeEntity> {
+    return await this.userService.getAccountInfo(userId);
   }
 }

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 import { UserRepository } from '../../repositories/user-respositories';
+import { EmployeeEntity } from '../../entity/employee.entity';
 
 @Injectable()
 export class UserService {
@@ -39,5 +40,9 @@ export class UserService {
 
   async checkUser(userId: string): Promise<boolean> {
     return this.userRepository.checkUser(userId)
+  }
+
+  async getAccountInfo(userId: string): Promise<EmployeeEntity> {
+    return await this.userRepository.getAccountInfo(userId);
   }
 }

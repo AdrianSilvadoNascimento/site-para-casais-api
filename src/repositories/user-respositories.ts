@@ -21,4 +21,6 @@ export abstract class UserRepository {
   abstract loginUser(email: string, password: string): Promise<any>;
 
   abstract checkUser(userId: string): Promise<boolean>;
+
+  abstract getAccountInfo(userId: string): Promise<EmployeeEntity>;
 }
