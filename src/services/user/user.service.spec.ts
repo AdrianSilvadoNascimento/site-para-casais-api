@@ -68,7 +68,6 @@ describe('CreateUser', () => {
     }
 
     const user = await service.createUser(userData.name, userData.email, userData.password, userData.type)
-    console.log(user)
     expect(user).toHaveProperty('id')
   })
 })

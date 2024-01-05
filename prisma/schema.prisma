@@ -46,6 +46,7 @@ model User {
   movemetations Movementation[]
   clients Client[]
   employee Employee[]
+  categories Category[]
 
   @@map("users")
 }
@@ -128,6 +129,9 @@ model Category {
   value String
   created_at DateTime @default(now())
   updated_at DateTime?
+
+  user User @relation(fields: [user_id], references: [id])
+  user_id String @db.ObjectId
 
   @@map("categories")
 }

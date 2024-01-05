@@ -1,6 +1,6 @@
 import { IsNotEmpty } from 'class-validator';
 
-export class Category {
+export class CategoryModel {
   @IsNotEmpty()
   name: string;
 

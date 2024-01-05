@@ -28,6 +28,10 @@ import { EmployeeService } from './services/admin/employee/employee.service';
 import { EmployeeRepository } from './repositories/admin/employee-repositories/employee-repositories';
 import { EmployeePrismaRepositories } from './repositories/prisma/admin/employee-prisma-repositories/employee-prisma-repositories';
 import { AuthMiddleware } from './utils/auth-middleware/auth-middleware';
+import { CategoryService } from './services/admin/category/category.service';
+import { CategoryRepository } from './repositories/admin/category-repositories/category-repositories';
+import { CategoryPrismaRepositories } from './repositories/prisma/admin/category-prisma-repositories/category-prisma-repositories';
+import { CategoryController } from './controllers/admin/category-controller/category-controller';
 
 @Module({
   imports: [ConfigModule.forRoot()],
@@ -38,6 +42,7 @@ import { AuthMiddleware } from './utils/auth-middleware/auth-middleware';
     MovementationController,
     ClientController,
     EmployeeController,
+    CategoryController,
   ],
   providers: [
     AppService,
@@ -48,6 +53,7 @@ import { AuthMiddleware } from './utils/auth-middleware/auth-middleware';
     EmployeeService,
     ItemService,
     EmployeeService,
+    CategoryService,
     {
       provide: APP_FILTER,
       useClass: NotFoundExceptionFilter,
@@ -71,6 +77,10 @@ import { AuthMiddleware } from './utils/auth-middleware/auth-middleware';
     {
       provide: EmployeeRepository,
       useClass: EmployeePrismaRepositories,
+    },
+    {
+      provide: CategoryRepository,
+      useClass: CategoryPrismaRepositories,
     },
   ],
 })

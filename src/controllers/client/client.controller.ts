@@ -13,7 +13,6 @@ export class ClientController {
     const client = await this.clientService.getClient(clientId)
 
     if (!client) {
-      console.log('client not found')
       throw new NotFoundException('Could not find client')
     }
 
