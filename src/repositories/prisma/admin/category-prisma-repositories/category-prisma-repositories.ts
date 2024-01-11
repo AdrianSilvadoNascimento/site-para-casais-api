@@ -31,6 +31,25 @@ export class CategoryPrismaRepositories {
     }
   }
 
+  async getCategory(categoryId: string): Promise<CategoryEntity> {
+    try {
+      const category = await this.prisma.category.findUnique({
+        where: {
+          id: categoryId,
+        },
+      })
+
+      if (!category) {
+        throw new NotFoundException('Categoria não encontrada com ID:', categoryId)
+      } else {
+        return category
+      }
+    } catch (error) {
+      console.error(error)
+      throw new Error(error)
+    }
+  }
+
   async registerCategory(userId: string, categoryData: CategoryModel): Promise<CategoryEntity> {
     try {
       const user = await this.prisma.user.findUnique({
@@ -48,6 +67,34 @@ export class CategoryPrismaRepositories {
             value: categoryData.value,
             user_id: userId,
             created_at: new Date().toISOString(),
+          },
+        })
+      }
+    } catch (error) {
+      console.error(error)
+      throw new Error(error)
+    }
+  }
+
+  async updateCategory(categoryId: string, categoryData: CategoryModel): Promise<CategoryEntity> {
+    try {
+      const category = await this.prisma.category.findUnique({
+        where: {
+          id: categoryId,
+        },
+      })
+
+      if (!category) {
+        throw new NotFoundException('Categoria não encontrada com o ID:', categoryId)
+      } else {
+        return await this.prisma.category.update({
+          where: {
+            id: categoryId,
+          },
+          data: {
+            name: categoryData.name,
+            value: categoryData.value,
+            updated_at: new Date().toISOString(),
           },
         })
       }
