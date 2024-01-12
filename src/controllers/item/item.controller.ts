@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 
 import { ItemService } from '../../services/item/item.service';
 import { ItemEntity } from '../../entity/item.entity';
@@ -28,7 +28,7 @@ export class ItemController {
     return await this.itemService.registerItem(userId, body)
   }
 
-  @Post('update-item/:id')
+  @Put('update-item/:id')
   async updateItem(@Param('id') itemId: string, @Body() body: ItemModel): Promise<ItemEntity> {
     return await this.itemService.updateItem(itemId, body)
   }
