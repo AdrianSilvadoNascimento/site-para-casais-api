@@ -21,13 +21,21 @@ export class ClientPrismaRepository {
     }
   }
 
-  async getClient(clientId: string): Promise<ClientEntity> {
+  async getClient(clientId: string): Promise<ClientEntity | any> {
     try {
-      return await this.prismaService.client.findUnique({
+      const client = await this.prismaService.client.findUnique({
         where: {
           id: clientId,
+        }, include: {
+          address: true,
         },
       })
+
+      if (!client) {
+        throw new NotFoundException('Não foi possível encontrar o cliente com o ID: ' + clientId)
+      } else {
+        return client
+      }
     } catch (error) {
       throw new Error('Error fetching client information')
     }

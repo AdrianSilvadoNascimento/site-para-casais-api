@@ -10,13 +10,7 @@ export class ClientController {
 
   @Get('get-client/:id')
   async getClient(@Param('id') clientId: string): Promise<ClientEntity> {
-    const client = await this.clientService.getClient(clientId)
-
-    if (!client) {
-      throw new NotFoundException('Could not find client')
-    }
-
-    return client
+    return await this.clientService.getClient(clientId)
   }
 
   @Get('get-clients/:id')
