@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, NotFoundException } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common'
 
 import { ClientEntity } from '../../entity/client.entity'
 import { ClientService } from '../../services/client/client.service'
