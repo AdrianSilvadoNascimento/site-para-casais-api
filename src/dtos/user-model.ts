@@ -21,6 +21,7 @@ export class UserModel {
   confirmed_email: boolean;
   is_assinant: boolean;
   is_trial: boolean;
+  expiration_trial: Date
 
   item?: ItemModel[];
   movementations?: MovementationModel[];

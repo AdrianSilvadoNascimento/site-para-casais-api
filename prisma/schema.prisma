@@ -41,6 +41,7 @@ model User {
   type Int @default(0)
   created_at DateTime @default(now())
   updated_at DateTime?
+  expiration_trial DateTime?
 
   item Item[]
   movemetations Movementation[]

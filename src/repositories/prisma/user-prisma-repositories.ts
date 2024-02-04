@@ -1,4 +1,9 @@
-import { Injectable, NotAcceptableException, NotFoundException, NotImplementedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotAcceptableException,
+  NotFoundException,
+  NotImplementedException,
+} from '@nestjs/common';
 import { env } from 'process';
 
 import * as bcrypt from 'bcrypt';
@@ -11,31 +16,35 @@ import { EmployeeEntity } from '../../entity/employee.entity';
 
 @Injectable()
 export class UserPrismaRepository implements UserRepository {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
-  async createUser(
-    name: string,
-    email: string,
-    password: string,
-    type: number
-  ): Promise<UserEntity> {
+  async createUser(newUserModel: {
+    name: string;
+    email: string;
+    password: string;
+    type: number;
+    expiration_trial: Date;
+  }): Promise<UserEntity> {
     try {
       const existUser = await this.prisma.user.findUnique({
         where: {
-          email,
+          email: newUserModel.email,
         },
       });
 
       if (!existUser) {
         const salt = await bcrypt.genSalt(10);
-        password = await bcrypt.hash(password, salt);
+        newUserModel.password = await bcrypt.hash(newUserModel.password, salt);
 
         return await this.prisma.user.create({
           data: {
-            name,
-            email,
-            password,
-            type,
+            name: newUserModel.name,
+            email: newUserModel.email,
+            password: newUserModel.password,
+            type: newUserModel.type,
+            is_trial: true,
+            is_assinant: false,
+            expiration_trial: newUserModel.expiration_trial,
           },
         });
       } else {
@@ -43,7 +52,7 @@ export class UserPrismaRepository implements UserRepository {
       }
     } catch (error) {
       console.error(error);
-      throw new Error(error)
+      throw new Error(error);
     }
   }
 
@@ -66,23 +75,24 @@ export class UserPrismaRepository implements UserRepository {
         where: {
           email: email,
         },
-      })
-      
-      if (!employer) throw new NotFoundException('Estabelecimento não encontrado')
+      });
+
+      if (!employer)
+        throw new NotFoundException('Estabelecimento não encontrado');
 
       if (userWithEmployeeEmail) {
-        throw new NotImplementedException('Já existe conta com este email')
+        throw new NotImplementedException('Já existe conta com este email');
       } else {
         const existEmployee = await this.prisma.employee.findUnique({
           where: {
             email: email,
           },
         });
-  
+
         if (!existEmployee) {
           const salt = await bcrypt.genSalt(10);
           password = await bcrypt.hash(password, salt);
-  
+
           return await this.prisma.employee.create({
             data: {
               user_id: employer.id,
@@ -91,10 +101,10 @@ export class UserPrismaRepository implements UserRepository {
               lastname,
               password,
               type,
-            }
-          })
+            },
+          });
         } else {
-          throw new NotImplementedException('Funcionário já registrado')
+          throw new NotImplementedException('Funcionário já registrado');
         }
       }
     } catch (error) {
@@ -120,7 +130,9 @@ export class UserPrismaRepository implements UserRepository {
       const user = employee ? employee : employer;
 
       if (!user) {
-        return new NotAcceptableException('Credenciais Inválidas! Favor, tentar novamente');
+        return new NotAcceptableException(
+          'Credenciais Inválidas! Favor, tentar novamente'
+        );
       }
 
       if (user) {
@@ -149,6 +161,9 @@ export class UserPrismaRepository implements UserRepository {
             expiresIn: 3600,
             user: user.name,
             type: user.type,
+            expiration_trial: employer.expiration_trial,
+            is_assinant: employer.is_assinant,
+            is_trial: employer.is_trial,
           };
         }
       }
@@ -164,9 +179,9 @@ export class UserPrismaRepository implements UserRepository {
         where: {
           id: userId,
         },
-      })
+      });
 
-      return !!user
+      return !!user;
     } catch (error) {
       console.error(error);
       throw new Error(error);
@@ -179,12 +194,14 @@ export class UserPrismaRepository implements UserRepository {
         where: {
           id: userId,
         },
-      })
+      });
 
       if (!user) {
-        throw new NotFoundException('Não foi possível encontrar o user de ID:' + userId)
+        throw new NotFoundException(
+          'Não foi possível encontrar o user de ID:' + userId
+        );
       } else {
-        return user
+        return user;
       }
     } catch (error) {
       console.error(error);

@@ -32,6 +32,11 @@
 $ npm install
 ```
 
+## Generating the database
+```bash
+# Generating the database
+$ npx prisma db generate
+```
 ## Running the app
 
 ```bash

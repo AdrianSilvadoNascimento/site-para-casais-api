@@ -29,17 +29,18 @@ export class UserService {
     return await this.userRepository.loginUser(email, password);
   }
 
-  async createUser(
-    name: string,
-    email: string,
-    password: string,
-    type: number
-  ): Promise<any> {
-    return await this.userRepository.createUser(name, email, password, type);
+  async createUser(newUserModel: {
+    name: string;
+    email: string;
+    password: string;
+    type: number;
+    expiration_trial: Date;
+  }): Promise<any> {
+    return await this.userRepository.createUser(newUserModel);
   }
 
   async checkUser(userId: string): Promise<boolean> {
-    return this.userRepository.checkUser(userId)
+    return this.userRepository.checkUser(userId);
   }
 
   async getAccountInfo(userId: string): Promise<EmployeeEntity> {

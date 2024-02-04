@@ -11,12 +11,26 @@ export class UserController {
 
   @Post('register-user')
   async createUser(@Body() body: UserModel): Promise<any> {
-    const { name, email, password, type } = body;
-    return await this.userService.createUser(name, email, password, type);
+    const newUserModel: {
+      name: string;
+      email: string;
+      password: string;
+      type: number;
+      expiration_trial: Date;
+    } = {
+      name: body.name,
+      email: body.email,
+      password: body.password,
+      type: body.type,
+      expiration_trial: body.expiration_trial,
+    };
+    return await this.userService.createUser(newUserModel);
   }
 
   @Post('login-user')
-  async loginUser(@Body() body: { email: string, password: string }): Promise<any> {
+  async loginUser(
+    @Body() body: { email: string; password: string }
+  ): Promise<any> {
     const { email, password } = body;
     return await this.userService.loginUser(email, password);
   }

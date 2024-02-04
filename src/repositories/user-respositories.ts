@@ -1,13 +1,14 @@
-import { EmployeeEntity } from "../entity/employee.entity";
-import { UserEntity } from "../entity/user.entity";
+import { EmployeeEntity } from '../entity/employee.entity';
+import { UserEntity } from '../entity/user.entity';
 
 export abstract class UserRepository {
-  abstract createUser(
-    name: string,
-    email: string,
-    password: string,
-    type: number
-  ): Promise<UserEntity>;
+  abstract createUser(newUserModel: {
+    name: string;
+    email: string;
+    password: string;
+    type: number;
+    expiration_trial: Date;
+  }): Promise<UserEntity>;
 
   abstract createEmployee(
     name: string,
