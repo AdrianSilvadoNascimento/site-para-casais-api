@@ -32,6 +32,7 @@ import { CategoryService } from './services/admin/category/category.service';
 import { CategoryRepository } from './repositories/admin/category-repositories/category-repositories';
 import { CategoryPrismaRepositories } from './repositories/prisma/admin/category-prisma-repositories/category-prisma-repositories';
 import { CategoryController } from './controllers/admin/category-controller/category-controller';
+import { PixController } from './controllers/pix/pix.controller';
 
 @Module({
   imports: [ConfigModule.forRoot()],
@@ -43,6 +44,7 @@ import { CategoryController } from './controllers/admin/category-controller/cate
     ClientController,
     EmployeeController,
     CategoryController,
+    PixController,
   ],
   providers: [
     AppService,
