@@ -33,6 +33,7 @@ import { CategoryRepository } from './repositories/admin/category-repositories/c
 import { CategoryPrismaRepositories } from './repositories/prisma/admin/category-prisma-repositories/category-prisma-repositories';
 import { CategoryController } from './controllers/admin/category-controller/category-controller';
 import { PixController } from './controllers/pix/pix.controller';
+import { PixService } from './services/pix/pix.service';
 
 @Module({
   imports: [ConfigModule.forRoot()],
@@ -84,6 +85,7 @@ import { PixController } from './controllers/pix/pix.controller';
       provide: CategoryRepository,
       useClass: CategoryPrismaRepositories,
     },
+    PixService,
   ],
 })
 export class AppModule {
