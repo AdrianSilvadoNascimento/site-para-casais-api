@@ -63,7 +63,7 @@ export class PixService {
   };
 
   constructor() {
-    this.init();
+    this.init().then((res) => res);
   }
 
   private async init() {
@@ -74,17 +74,17 @@ export class PixService {
     setInterval(async () => {
       await this.getPixAccessToken();
     }, 5000 * 1000);
-
-    this.headersConfig = {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${this.accessToken}`,
-    };
   }
 
   private async getPixAccessToken(): Promise<void> {
     try {
       const response = await axios(this.authConfig);
+
       this.accessToken = response.data.access_token;
+      this.headersConfig = {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.accessToken}`,
+      };
     } catch (error) {
       console.log(error);
       throw new Error(error);

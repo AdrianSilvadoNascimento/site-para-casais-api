@@ -34,6 +34,8 @@ import { CategoryPrismaRepositories } from './repositories/prisma/admin/category
 import { CategoryController } from './controllers/admin/category-controller/category-controller';
 import { PixController } from './controllers/pix/pix.controller';
 import { PixService } from './services/pix/pix.service';
+import { SignCobService } from './services/sign-cob/sign-cob.service';
+import { SignCobController } from './controllers/sign-cob/sign-cob.controller';
 
 @Module({
   imports: [ConfigModule.forRoot()],
@@ -46,6 +48,7 @@ import { PixService } from './services/pix/pix.service';
     EmployeeController,
     CategoryController,
     PixController,
+    SignCobController,
   ],
   providers: [
     AppService,
@@ -86,6 +89,7 @@ import { PixService } from './services/pix/pix.service';
       useClass: CategoryPrismaRepositories,
     },
     PixService,
+    SignCobService,
   ],
 })
 export class AppModule {
