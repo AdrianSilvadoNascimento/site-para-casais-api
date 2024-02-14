@@ -18,10 +18,12 @@ export class UserModel {
   @IsNotEmpty()
   type: number;
 
+  cnpj: string;
+  phone_number: string;
   confirmed_email: boolean;
   is_assinant: boolean;
   is_trial: boolean;
-  expiration_trial: Date
+  expiration_trial: Date;
 
   item?: ItemModel[];
   movementations?: MovementationModel[];

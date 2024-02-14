@@ -8,6 +8,8 @@ export abstract class UserRepository {
     password: string;
     type: number;
     expiration_trial: Date;
+    cnpj: string;
+    phone_number: string;
   }): Promise<UserEntity>;
 
   abstract createEmployee(
@@ -23,5 +25,5 @@ export abstract class UserRepository {
 
   abstract checkUser(userId: string): Promise<boolean>;
 
-  abstract getAccountInfo(userId: string): Promise<EmployeeEntity>;
+  abstract getAccountInfo(userId: string): Promise<UserEntity>;
 }

@@ -24,6 +24,8 @@ export class UserPrismaRepository implements UserRepository {
     password: string;
     type: number;
     expiration_trial: Date;
+    cnpj: string;
+    phone_number: string;
   }): Promise<UserEntity> {
     try {
       const existUser = await this.prisma.user.findUnique({
@@ -42,6 +44,8 @@ export class UserPrismaRepository implements UserRepository {
             email: newUserModel.email,
             password: newUserModel.password,
             type: newUserModel.type,
+            cnpj: newUserModel.cnpj,
+            phone_number: newUserModel.phone_number,
             is_trial: true,
             is_assinant: false,
             expiration_trial: newUserModel.expiration_trial,
@@ -188,7 +192,7 @@ export class UserPrismaRepository implements UserRepository {
     }
   }
 
-  async getAccountInfo(userId: string): Promise<EmployeeEntity> {
+  async getAccountInfo(userId: string): Promise<UserEntity> {
     try {
       const user = await this.prisma.user.findUnique({
         where: {

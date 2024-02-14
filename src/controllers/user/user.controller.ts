@@ -3,7 +3,7 @@ import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { EmployeeModel } from '../../dtos/employee-model';
 import { UserModel } from '../../dtos/user-model';
 import { UserService } from '../../services/user/user.service';
-import { EmployeeEntity } from '../../entity/employee.entity';
+import { UserEntity } from '../../entity/user.entity';
 
 @Controller('user')
 export class UserController {
@@ -17,12 +17,16 @@ export class UserController {
       password: string;
       type: number;
       expiration_trial: Date;
+      cnpj: string;
+      phone_number: string;
     } = {
       name: body.name,
       email: body.email,
       password: body.password,
       type: body.type,
       expiration_trial: body.expiration_trial,
+      cnpj: body.cnpj,
+      phone_number: body.phone_number,
     };
     return await this.userService.createUser(newUserModel);
   }
@@ -49,7 +53,7 @@ export class UserController {
   }
 
   @Get(':id/account-info')
-  async getAccountInfo(@Param('id') userId: string): Promise<EmployeeEntity> {
+  async getAccountInfo(@Param('id') userId: string): Promise<UserEntity> {
     return await this.userService.getAccountInfo(userId);
   }
 }

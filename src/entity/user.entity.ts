@@ -8,6 +8,8 @@ export class UserEntity {
   email: string;
   password: string;
   type: number;
+  cnpj: string;
+  phone_number: string;
 
   confirmed_email: boolean;
   is_assinant: boolean;

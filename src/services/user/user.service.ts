@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 import { UserRepository } from '../../repositories/user-respositories';
-import { EmployeeEntity } from '../../entity/employee.entity';
+import { UserEntity } from '../../entity/user.entity';
 
 @Injectable()
 export class UserService {
@@ -35,6 +35,8 @@ export class UserService {
     password: string;
     type: number;
     expiration_trial: Date;
+    cnpj: string;
+    phone_number: string;
   }): Promise<any> {
     return await this.userRepository.createUser(newUserModel);
   }
@@ -43,7 +45,7 @@ export class UserService {
     return this.userRepository.checkUser(userId);
   }
 
-  async getAccountInfo(userId: string): Promise<EmployeeEntity> {
+  async getAccountInfo(userId: string): Promise<UserEntity> {
     return await this.userRepository.getAccountInfo(userId);
   }
 }

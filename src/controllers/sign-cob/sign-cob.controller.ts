@@ -1,9 +1,11 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Body, Controller, Get } from '@nestjs/common';
 
 import { SignCobService } from '../../services/sign-cob/sign-cob.service';
 
 enum Subscriptions {
+  bronze = 'Assinatura - Plano Bronze',
   prata = 'Assinatura - Plano Prata',
+  ouro = 'Assinatura - Plano Ouro',
 }
 
 @Controller('credit')
@@ -16,17 +18,28 @@ export class SignCobController {
   }
 
   @Get('subscription')
-  async createSubscription(@Query() params: any): Promise<any> {
-    const res = await this.signCobService.createSubscriptions(
-      Subscriptions[params.plan_name]
-    );
+  async createSubscription(@Body() plan_body: any): Promise<any> {
+    plan_body.plan_name = Subscriptions[plan_body.plan_name];
+    const res = await this.signCobService.createSubscriptions(plan_body);
 
     return res;
   }
 
+  @Get('specific-plan')
+  async getSpecificPlan(@Body() plan_body: any): Promise<any> {
+    return await this.signCobService.getSpecificPlan(plan_body.plan_name);
+  }
+
   @Get('create-plan')
-  async createAccountSign(): Promise<any> {
-    const res = this.signCobService.createPlans();
+  async createAccountSign(
+    @Body()
+    create_plan_model: {
+      name: string;
+      interval: number;
+      repeats: number;
+    }
+  ): Promise<any> {
+    const res = this.signCobService.createPlans(create_plan_model);
 
     return res;
   }
