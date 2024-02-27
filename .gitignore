@@ -1,7 +1,7 @@
 # compiled output
 /dist
 /node_modules
-certs
+certs/*.p12
 # Environment variables
 .env
 
@@ -36,3 +36,4 @@ lerna-debug.log*
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+.vercel
