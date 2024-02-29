@@ -1,28 +1,35 @@
+/* eslint-disable prettier/prettier */
 import { Injectable } from '@nestjs/common';
 import { env } from 'process';
+import { Storage } from '@google-cloud/storage';
 
 import https from 'https';
 import axios from 'axios';
-import * as fs from 'node:fs';
 import path from 'path';
 
 @Injectable()
 export class PixService {
   accessToken: string = '';
   headersConfig: object = {};
-
+  
   // Pix Configurations
-  certificate = fs.readFileSync(
-    path.join(__dirname, `../../../certs/${env.CERTIFICATE}`)
-  );
+  storage = new Storage({
+    keyFilename: path.join(
+      __dirname,
+      '../../../../e-gest-firebase-keyfile.json'
+    ),
+    projectId: 'e-gest-954ea',
+  });
+
+  bucketName = 'e-gest-954ea.appspot.com';
+  filename = 'egest-estoque-hmg-cert.p12';
+
+  file = this.storage.bucket(this.bucketName).file(this.filename);
 
   data = JSON.stringify({ grant_type: 'client_credentials' });
   credentials = `${env.CLIENT_ID}:${env.CLIENT_SECRET}`;
   auth = Buffer.from(this.credentials).toString('base64');
-  agent = new https.Agent({
-    pfx: this.certificate,
-    passphrase: '',
-  });
+  agent = new https.Agent();
 
   authConfig = {
     method: 'POST',
@@ -63,12 +70,38 @@ export class PixService {
   };
 
   constructor() {
-    this.init().then((res) => res);
+    this.getCertificateAndInit()
+  }
+
+  private getCertificateAndInit() {
+    const stream = this.file.createReadStream();
+    const chunks = [];
+
+    stream.on('data', (chunk) => {
+      chunks.push(chunk);
+    });
+
+    stream.on('end', () => {
+      const fileContent = Buffer.concat(chunks);
+      this.agent.options.pfx = fileContent;
+
+      this.authConfig.httpsAgent,
+      this.qrcodeConfig.httpsAgent,
+      this.cobConfig.httpsAgent = this.agent;
+
+      this.init()
+    });
+
+    stream.on('error', (err) => {
+      console.error(err);
+    });
   }
 
   private async init() {
     if (!this.accessToken.length) {
-      await this.getPixAccessToken();
+      setTimeout(async () => {
+        await this.getPixAccessToken();
+      });
     }
 
     setInterval(async () => {

@@ -14,7 +14,7 @@ export class SignCobService {
   headersConfig: object = {};
 
   certificate = fs.readFileSync(
-    path.join(__dirname, `../../../certs/${env.CERTIFICATE}`)
+    path.join(__dirname, `../../../../certs/${env.CERTIFICATE}`)
   );
 
   data = JSON.stringify({ grant_type: 'client_credentials' });
