@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Body, Controller, Get } from '@nestjs/common';
 
 import { SignCobService } from '../../services/sign-cob/sign-cob.service';

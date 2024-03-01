@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER } from '@nestjs/core';
@@ -60,6 +61,8 @@ import { SignCobController } from './controllers/sign-cob/sign-cob.controller';
     ItemService,
     EmployeeService,
     CategoryService,
+    PixService,
+    SignCobService,
     {
       provide: APP_FILTER,
       useClass: NotFoundExceptionFilter,
@@ -88,8 +91,6 @@ import { SignCobController } from './controllers/sign-cob/sign-cob.controller';
       provide: CategoryRepository,
       useClass: CategoryPrismaRepositories,
     },
-    PixService,
-    SignCobService,
   ],
 })
 export class AppModule {

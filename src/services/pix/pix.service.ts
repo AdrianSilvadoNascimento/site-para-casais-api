@@ -1,52 +1,21 @@
 /* eslint-disable prettier/prettier */
 import { Injectable } from '@nestjs/common';
 import { env } from 'process';
-import { Storage } from '@google-cloud/storage';
 
-import https from 'https';
 import axios from 'axios';
-import path from 'path';
+
+import { EfiManagement } from '../../utils/efi-management/efi-management';
 
 @Injectable()
 export class PixService {
-  accessToken: string = '';
-  headersConfig: object = {};
-  
+  efiManager = new EfiManagement()
+
   // Pix Configurations
-  storage = new Storage({
-    keyFilename: path.join(
-      __dirname,
-      '../../../../e-gest-firebase-keyfile.json'
-    ),
-    projectId: 'e-gest-954ea',
-  });
-
-  bucketName = 'e-gest-954ea.appspot.com';
-  filename = 'egest-estoque-hmg-cert.p12';
-
-  file = this.storage.bucket(this.bucketName).file(this.filename);
-
-  data = JSON.stringify({ grant_type: 'client_credentials' });
-  credentials = `${env.CLIENT_ID}:${env.CLIENT_SECRET}`;
-  auth = Buffer.from(this.credentials).toString('base64');
-  agent = new https.Agent();
-
-  authConfig = {
-    method: 'POST',
-    url: `${env.ROUTE_PIX}/oauth/token`,
-    headers: {
-      Authorization: `Basic ${this.auth}`,
-      'Content-Type': 'application/json',
-    },
-    httpsAgent: this.agent,
-    data: this.data,
-  };
-
   qrcodeConfig = {
     method: 'GET',
     url: `${env.ROUTE_PIX}/v2/loc`,
-    httpsAgent: this.agent,
-    headers: {},
+    httpsAgent: this.efiManager.agent,
+    headers: this.efiManager.headersConfig,
     data: {
       tipoCob: 'cob',
     },
@@ -55,8 +24,8 @@ export class PixService {
   cobConfig = {
     method: 'POST',
     url: `${env.ROUTE_PIX}/v2/cob`,
-    httpsAgent: this.agent,
-    headers: {},
+    httpsAgent: this.efiManager.agent,
+    headers: this.efiManager.headersConfig,
     data: {
       calendario: {
         expiracao: 3600,
@@ -70,63 +39,18 @@ export class PixService {
   };
 
   constructor() {
-    this.getCertificateAndInit()
-  }
-
-  private getCertificateAndInit() {
-    const stream = this.file.createReadStream();
-    const chunks = [];
-
-    stream.on('data', (chunk) => {
-      chunks.push(chunk);
-    });
-
-    stream.on('end', () => {
-      const fileContent = Buffer.concat(chunks);
-      this.agent.options.pfx = fileContent;
-
-      this.authConfig.httpsAgent,
-      this.qrcodeConfig.httpsAgent,
-      this.cobConfig.httpsAgent = this.agent;
-
-      this.init()
-    });
-
-    stream.on('error', (err) => {
-      console.error(err);
-    });
-  }
-
-  private async init() {
-    if (!this.accessToken.length) {
-      setTimeout(async () => {
-        await this.getPixAccessToken();
-      });
-    }
-
-    setInterval(async () => {
-      await this.getPixAccessToken();
-    }, 5000 * 1000);
-  }
-
-  private async getPixAccessToken(): Promise<void> {
-    try {
-      const response = await axios(this.authConfig);
-
-      this.accessToken = response.data.access_token;
-      this.headersConfig = {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${this.accessToken}`,
-      };
-    } catch (error) {
-      console.log(error);
-      throw new Error(error);
-    }
+    this.efiManager.getCertificate(env.ROUTE_PIX);
   }
 
   async createPixCob(): Promise<any> {
     try {
-      this.cobConfig.headers = this.headersConfig;
+      await this.efiManager.getAccessToken()
+
+      this.cobConfig = {
+        ...this.cobConfig,
+        headers: this.efiManager.headersConfig,
+        httpsAgent: this.efiManager.agent,
+      };
 
       const cobRes = await axios(this.cobConfig);
       const code = await this.getPixQrcode(cobRes.data.loc.id);
@@ -142,9 +66,12 @@ export class PixService {
 
   async getPixQrcode(locId: string) {
     try {
+      await this.efiManager.getAccessToken()
+
       this.qrcodeConfig = {
         ...this.qrcodeConfig,
-        headers: this.headersConfig,
+        headers: this.efiManager.headersConfig,
+        httpsAgent: this.efiManager.agent,
         url: `${this.qrcodeConfig.url}/${locId}/qrcode`,
       };
 
