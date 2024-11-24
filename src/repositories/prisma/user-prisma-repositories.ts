@@ -9,7 +9,7 @@ import { Storage } from '@google-cloud/storage';
 
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
-import path from 'path';
+import * as admin from 'firebase-admin'
 
 import { PrismaService } from '../../database/prisma.service';
 import { UserRepository } from '../user-respositories';
@@ -18,17 +18,33 @@ import { UserEntity } from '../../entity/user.entity';
 @Injectable()
 export class UserPrismaRepository implements UserRepository {
   baseName = 'casal_site_images'
-  storage = new Storage({
-    keyFilename: path.join(
-      __dirname,
-      '../../../../e-gest-firebase-keyfile.json'
-    ),
-    projectId: env.PROJECT_ID,
-  })
+  firebaseConfig = {
+    type: env.TYPE,
+    project_id: env.PROJECT_ID,
+    private_key_id: env.PRIVATE_KEY_ID,
+    private_key: env.PRIVATE_KEY?.replace(/\\n/g, '\n'),
+    client_email: env.CLIENT_EMAIL,
+    client_id: env.CLIENT_ID,
+  }
 
-  bucket = this.storage.bucket(env.BUCKET)
+  private storage: Storage
+  private bucket;
 
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) {
+    admin.initializeApp({
+      credential: admin.credential.cert(this.firebaseConfig as admin.ServiceAccount)
+    })
+
+    this.storage = new Storage({
+      credentials: {
+        client_email: this.firebaseConfig.client_email,
+        private_key: this.firebaseConfig.private_key,
+      },
+      projectId: this.firebaseConfig.project_id,
+    })
+
+    this.bucket = this.storage.bucket(env.BUCKET)
+  }
 
   async createUser(newUserModel: UserEntity): Promise<any> {
     try {
