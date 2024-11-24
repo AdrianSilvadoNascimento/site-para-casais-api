@@ -1,6 +1,5 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
 
-import { EmployeeModel } from '../../dtos/employee-model';
 import { UserModel } from '../../dtos/user-model';
 import { UserService } from '../../services/user/user.service';
 import { UserEntity } from '../../entity/user.entity';
@@ -11,23 +10,7 @@ export class UserController {
 
   @Post('register-user')
   async createUser(@Body() body: UserModel): Promise<any> {
-    const newUserModel: {
-      name: string;
-      email: string;
-      password: string;
-      type: number;
-      expiration_trial: Date;
-      cnpj: string;
-      phone_number: string;
-    } = {
-      name: body.name,
-      email: body.email,
-      password: body.password,
-      type: body.type,
-      expiration_trial: body.expiration_trial,
-      cnpj: body.cnpj,
-      phone_number: body.phone_number,
-    };
+    const newUserModel: UserEntity = body;
     return await this.userService.createUser(newUserModel);
   }
 
@@ -39,21 +22,18 @@ export class UserController {
     return await this.userService.loginUser(email, password);
   }
 
-  @Post('register-employee')
-  async registerEmployee(@Body() body: EmployeeModel): Promise<any> {
-    const { name, email, lastname, password, type } = body;
-    return await this.userService.createEmployee(
-      name,
-      email,
-      lastname,
-      password,
-      type,
-      body.employerEmail
-    );
+  @Put('update-user/:id')
+  async updateUser(
+    @Body() body: UserEntity,
+    @Param('id') userId: string
+  ): Promise<any> {
+    const userData = { user: body as UserEntity, userId };
+    return await this.userService.updateUser(userData);
   }
 
-  @Get(':id/account-info')
+  @Get('get-user/:id')
   async getAccountInfo(@Param('id') userId: string): Promise<UserEntity> {
+    console.log('Tá batendo no controller');
     return await this.userService.getAccountInfo(userId);
   }
 }

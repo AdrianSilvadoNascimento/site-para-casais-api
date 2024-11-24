@@ -3,31 +3,34 @@ import {
   Injectable,
   NotAcceptableException,
   NotFoundException,
-  NotImplementedException,
 } from '@nestjs/common';
 import { env } from 'process';
+import { Storage } from '@google-cloud/storage';
 
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
+import path from 'path';
 
 import { PrismaService } from '../../database/prisma.service';
 import { UserRepository } from '../user-respositories';
 import { UserEntity } from '../../entity/user.entity';
-import { EmployeeEntity } from '../../entity/employee.entity';
 
 @Injectable()
 export class UserPrismaRepository implements UserRepository {
+  baseName = 'casal_site_images'
+  storage = new Storage({
+    keyFilename: path.join(
+      __dirname,
+      '../../../../e-gest-firebase-keyfile.json'
+    ),
+    projectId: env.PROJECT_ID,
+  })
+
+  bucket = this.storage.bucket(env.BUCKET)
+
   constructor(private prisma: PrismaService) {}
 
-  async createUser(newUserModel: {
-    name: string;
-    email: string;
-    password: string;
-    type: number;
-    expiration_trial: Date;
-    cnpj: string;
-    phone_number: string;
-  }): Promise<UserEntity> {
+  async createUser(newUserModel: UserEntity): Promise<any> {
     try {
       const existUser = await this.prisma.user.findUnique({
         where: {
@@ -35,83 +38,14 @@ export class UserPrismaRepository implements UserRepository {
         },
       });
 
-      if (!existUser) {
-        const salt = await bcrypt.genSalt(10);
-        newUserModel.password = await bcrypt.hash(newUserModel.password, salt);
+      if (existUser) return new NotAcceptableException('Conta já registrada');
 
-        return await this.prisma.user.create({
-          data: {
-            name: newUserModel.name,
-            email: newUserModel.email,
-            password: newUserModel.password,
-            type: newUserModel.type,
-            cnpj: newUserModel.cnpj,
-            phone_number: newUserModel.phone_number,
-            is_trial: true,
-            is_assinant: false,
-            expiration_trial: newUserModel.expiration_trial,
-          },
-        });
-      } else {
-        throw new Error('Conta já registrada');
-      }
-    } catch (error) {
-      console.error(error);
-      throw new Error(error);
-    }
-  }
+      const salt = await bcrypt.genSalt(10);
+      newUserModel.password = await bcrypt.hash(newUserModel.password, salt);
 
-  async createEmployee(
-    name: string,
-    email: string,
-    lastname: string,
-    password: string,
-    type: number,
-    employerEmail: string
-  ): Promise<EmployeeEntity> {
-    try {
-      const employer = await this.prisma.user.findUnique({
-        where: {
-          email: employerEmail,
-        },
+      return await this.prisma.user.create({
+        data: newUserModel,
       });
-
-      const userWithEmployeeEmail = await this.prisma.user.findUnique({
-        where: {
-          email: email,
-        },
-      });
-
-      if (!employer)
-        throw new NotFoundException('Estabelecimento não encontrado');
-
-      if (userWithEmployeeEmail) {
-        throw new NotImplementedException('Já existe conta com este email');
-      } else {
-        const existEmployee = await this.prisma.employee.findUnique({
-          where: {
-            email: email,
-          },
-        });
-
-        if (!existEmployee) {
-          const salt = await bcrypt.genSalt(10);
-          password = await bcrypt.hash(password, salt);
-
-          return await this.prisma.employee.create({
-            data: {
-              user_id: employer.id,
-              name,
-              email,
-              lastname,
-              password,
-              type,
-            },
-          });
-        } else {
-          throw new NotImplementedException('Funcionário já registrado');
-        }
-      }
     } catch (error) {
       console.error(error);
       throw new Error(error);
@@ -120,19 +54,11 @@ export class UserPrismaRepository implements UserRepository {
 
   async loginUser(email: string, password: string): Promise<any> {
     try {
-      const employee = await this.prisma.employee.findUnique({
+      const user = await this.prisma.user.findUnique({
         where: {
           email,
         },
       });
-
-      const employer = await this.prisma.user.findUnique({
-        where: {
-          email,
-        },
-      });
-
-      const user = employee ? employee : employer;
 
       if (!user) {
         return new NotAcceptableException(
@@ -140,41 +66,61 @@ export class UserPrismaRepository implements UserRepository {
         );
       }
 
-      if (user) {
-        const invalidPassword = await bcrypt.compare(password, user.password);
+      const invalidPassword = await bcrypt.compare(password, user.password);
 
-        if (!invalidPassword) {
-          return new NotAcceptableException('Senha inválida');
-        } else {
-          const token = jwt.sign(
-            {
-              user: user.name,
-              email: user.email,
-              userId: employer ? employer.id : employee.user_id,
-              employeeId: employee ? employee.id : '',
-            },
-            env.SECRET_MESSAGE,
-            {
-              expiresIn: '1h',
-            }
-          );
+      if (!invalidPassword) return new NotAcceptableException('Senha inválida');
 
-          return {
-            token,
-            userId: employer ? employer.id : employee.user_id,
-            employeeId: employee ? employee.id : '',
-            expiresIn: 3600,
-            user: user.name,
-            type: user.type,
-            expiration_trial: employer.expiration_trial,
-            is_assinant: employer.is_assinant,
-            is_trial: employer.is_trial,
-          };
+      const token = jwt.sign(
+        {
+          user: user.name,
+          email: user.email,
+          userId: user.id,
+        },
+        env.SECRET_MESSAGE,
+        {
+          expiresIn: '1h',
         }
+      );
+      
+      const userData: UserEntity = user;
+      delete userData.password;
+      
+      return {
+        token,
+        expiresIn: 3600,
+        userData,
       }
     } catch (error) {
       console.error(error);
       throw new Error(error);
+    }
+  }
+
+  async updateUser(userData: { user: UserEntity, userId: string }): Promise<any> {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { id: userData.userId }
+      })
+
+      if (!user) return new NotFoundException('Usuário não encontrado');
+
+      userData.user.updated_at = new Date()
+
+      if (userData.user.couple_image?.length) {
+        userData.user.couple_image = await this.uploadImage(userData.user.couple_image, user.name)
+      }
+
+      const updatedUser = await this.prisma.user.update({
+        where: { id: user.id },
+        data: userData.user
+      })
+
+      delete updatedUser.password
+
+      return updatedUser
+    } catch (error) {
+      console.error(error)
+      throw new Error(error)
     }
   }
 
@@ -194,6 +140,7 @@ export class UserPrismaRepository implements UserRepository {
   }
 
   async getAccountInfo(userId: string): Promise<UserEntity> {
+    console.log(userId)
     try {
       const user = await this.prisma.user.findUnique({
         where: {
@@ -201,16 +148,57 @@ export class UserPrismaRepository implements UserRepository {
         },
       });
 
-      if (!user) {
-        throw new NotFoundException(
-          'Não foi possível encontrar o user de ID:' + userId
-        );
-      } else {
-        return user;
-      }
+      if (!user) throw new NotFoundException(
+        'Não foi possível encontrar o user de ID:' + userId
+      );
+
+      delete user.password
+
+      return user;
     } catch (error) {
       console.error(error);
       throw new Error(error);
+    }
+  }
+
+  async uploadImage(file: string, userName: string): Promise<string> {
+    try {
+      const buffer = Buffer.from(file, 'base64');
+      const secondName = `${userName.toLocaleLowerCase().replace(' ', '_')}_${new Date().toISOString().replace(' ', '_')}`
+      const originalname = `${this.baseName}/image_${secondName}.png`;
+
+      const blob = this.bucket.file(originalname);
+
+      const [files] = await this.bucket.getFiles({
+        prefix: `${this.baseName}/image_${userName.toLocaleLowerCase().replace(' ', '_')}`,
+      });
+
+      for (const file of files) {
+        await file.delete();
+      }
+
+      const blobStream = blob.createWriteStream({
+        resumable: false,
+        public: true,
+      });
+
+      return new Promise((resolve, reject) => {
+        blobStream.on('error', (err) => {
+          console.error(err);
+          reject(err);
+        });
+
+        blobStream.on('finish', async () => {
+          await blob.makePublic();
+          const publicUrl = `https://storage.googleapis.com/${this.bucket.name}/${blob.name}`;
+          resolve(publicUrl);
+        });
+
+        blobStream.end(buffer);
+      });
+    } catch (error) {
+      console.error(error);
+      throw new Error(error.message);
     }
   }
 }

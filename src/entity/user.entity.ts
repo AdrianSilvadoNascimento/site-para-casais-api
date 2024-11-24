@@ -1,25 +1,12 @@
-import { ItemEntity } from './item.entity';
-import { ClientEntity } from './client.entity';
-import { MovementationEntity } from './movementation.entity';
-import { EmployeeEntity } from './employee.entity';
-
 export class UserEntity {
   name: string;
   email: string;
   password: string;
-  type: number;
-  cnpj: string;
-  phone_number: string;
-
-  confirmed_email: boolean;
-  is_assinant: boolean;
-  is_trial: boolean;
-  expiration_trial: Date;
-
-  item?: ItemEntity[];
-  movementations?: MovementationEntity[];
-  clients?: ClientEntity[];
-  employee?: EmployeeEntity[];
+  age: number;
+  couple_image: string;
+  couple_start: Date;
+  affection_message: string;
+  spouse_name: string;
 
   created_at: Date;
   updated_at: Date;
