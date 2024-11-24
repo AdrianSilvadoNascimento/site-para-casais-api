@@ -1,10 +1,5 @@
 import { IsNotEmpty } from 'class-validator';
 
-import { ItemModel } from './item-model';
-import { MovementationModel } from './movementation-model';
-import { EmployeeModel } from './employee-model';
-import { ClientModel } from './client-model';
-
 export class UserModel {
   @IsNotEmpty()
   name: string;
@@ -15,18 +10,12 @@ export class UserModel {
   @IsNotEmpty()
   password: string;
 
-  @IsNotEmpty()
-  type: number;
+  age: number;
+  couple_image: string;
+  couple_start: Date;
+  affection_message: string;
+  spouse_name: string;
 
-  cnpj: string;
-  phone_number: string;
-  confirmed_email: boolean;
-  is_assinant: boolean;
-  is_trial: boolean;
-  expiration_trial: Date;
-
-  item?: ItemModel[];
-  movementations?: MovementationModel[];
-  clients?: ClientModel[];
-  employee?: EmployeeModel[];
+  created_at: Date;
+  updated_at: Date;
 }
