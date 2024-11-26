@@ -21,17 +21,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   return cachedApp(req, res);
 }
 
-// Executar localmente
-if (process.env.VERCEL !== '1') {
-  async function bootstrap() {
-    const app = await NestFactory.create(AppModule);
-    app.enableCors();
-    app.use(bodyParser.json({ limit: '50mb' }));
-    app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
-    app.useGlobalPipes(new ValidationPipe());
+// // Executar localmente
+// if (process.env.VERCEL !== '1') {
+//   async function bootstrap() {
+//     const app = await NestFactory.create(AppModule);
+//     app.enableCors();
+//     app.use(bodyParser.json({ limit: '50mb' }));
+//     app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+//     app.useGlobalPipes(new ValidationPipe());
 
-    await app.listen(3004);
-    console.log('Application is running on: http://localhost:3004');
-  }
-  bootstrap();
-}
+//     await app.listen(3004);
+//     console.log('Application is running on: http://localhost:3004');
+//   }
+//   bootstrap();
+// }
