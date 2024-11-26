@@ -22,6 +22,14 @@ export class UserController {
     return await this.userService.loginUser(email, password);
   }
 
+  @Put('like-couple-photo/:id')
+  async likeCouplePhoto(
+    @Body() body: { isLiking: boolean },
+    @Param('id') userId: string
+  ): Promise<any> {
+    return await this.userService.likeCouplePhoto(body.isLiking, userId);
+  }
+
   @Put('update-user/:id')
   async updateUser(
     @Body() body: UserEntity,
@@ -33,7 +41,6 @@ export class UserController {
 
   @Get('get-user/:id')
   async getAccountInfo(@Param('id') userId: string): Promise<UserEntity> {
-    console.log('Tá batendo no controller');
     return await this.userService.getAccountInfo(userId);
   }
 }

@@ -22,6 +22,10 @@ export class UserService {
     return await this.userRepository.updateUser(userData);
   }
 
+  async likeCouplePhoto(isLiking: boolean, userId: string): Promise<any> {
+    return await this.userRepository.likeCouplePhoto(isLiking, userId);
+  }
+
   async checkUser(userId: string): Promise<boolean> {
     return this.userRepository.checkUser(userId);
   }

@@ -17,9 +17,26 @@ model User {
   couple_start     DateTime  @default(now())
   affection_message String    @default("")
   spouse_name      String    @default("")
+  photo_liked      Boolean   @default(false)
   
   created_at       DateTime  @default(now())
   updated_at       DateTime  @default(now())
 
+
+  comments_on_couple_photos CommentsOnCouplePhoto[]
+
   @@map("users")
+}
+
+model CommentsOnCouplePhoto {
+  id               String    @id @default(auto()) @map("_id") @db.ObjectId
+  message          String    @default("")
+
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @default(now())
+
+  user             User      @relation(fields: [user_id], references: [id])
+  user_id          String    @map("user_id") @db.ObjectId
+
+  @@map("comments_on_couple_photos")
 }

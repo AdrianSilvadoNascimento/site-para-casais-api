@@ -10,6 +10,8 @@ export abstract class UserRepository {
     userId: string;
   }): Promise<any>;
 
+  abstract likeCouplePhoto(isLiking: boolean, userId: string): Promise<any>;
+
   abstract checkUser(userId: string): Promise<boolean>;
 
   abstract getAccountInfo(userId: string): Promise<UserEntity>;

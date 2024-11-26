@@ -140,6 +140,35 @@ export class UserPrismaRepository implements UserRepository {
     }
   }
 
+  async likeCouplePhoto(isLiking: boolean, userId: string): Promise<any> {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: {
+          id: userId,
+        }
+      })
+
+      if (!user) return new NotFoundException('Usuário não encontrado')
+
+      user.photo_liked = isLiking
+      user.updated_at = new Date()
+
+      const updated_user = await this.prisma.user.update({
+        where: {
+          id: user.id
+        },
+        data: { photo_liked: isLiking },
+      })
+
+      delete updated_user.password
+
+      return updated_user
+    } catch (error) {
+      console.error(error);
+      throw new Error(error);
+    }
+  }
+
   async checkUser(userId: string): Promise<boolean> {
     try {
       const user = await this.prisma.user.findUnique({
@@ -156,7 +185,6 @@ export class UserPrismaRepository implements UserRepository {
   }
 
   async getAccountInfo(userId: string): Promise<UserEntity> {
-    console.log(userId)
     try {
       const user = await this.prisma.user.findUnique({
         where: {
