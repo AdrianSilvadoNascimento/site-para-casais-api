@@ -152,14 +152,14 @@ export class UserPrismaRepository implements UserRepository {
 
       if (!user) return new NotFoundException('Usuário não encontrado')
 
-      user.photo_liked = isLiking
-      user.updated_at = new Date()
-
       const updated_user = await this.prisma.user.update({
         where: {
           id: user.id
         },
-        data: { photo_liked: isLiking },
+        data: {
+          photo_liked: true,
+          updated_at: new Date()
+        },
       })
 
       delete updated_user.password

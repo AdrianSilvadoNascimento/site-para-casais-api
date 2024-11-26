@@ -7,6 +7,7 @@ export class UserEntity {
   couple_start: Date;
   affection_message: string;
   spouse_name: string;
+  photo_liked: boolean;
 
   created_at: Date;
   updated_at: Date;
