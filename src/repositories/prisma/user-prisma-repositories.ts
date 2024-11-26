@@ -31,9 +31,11 @@ export class UserPrismaRepository implements UserRepository {
   private bucket;
 
   constructor(private prisma: PrismaService) {
-    admin.initializeApp({
-      credential: admin.credential.cert(this.firebaseConfig as admin.ServiceAccount)
-    })
+    if (!admin.apps.length) {
+      admin.initializeApp({
+        credential: admin.credential.cert(this.firebaseConfig as admin.ServiceAccount)
+      })
+    }
 
     this.storage = new Storage({
       credentials: {
