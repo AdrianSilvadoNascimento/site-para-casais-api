@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CommentsOnCouplePhotoRepository } from '../../repositories/comments-on-couple-photo-repositories';
-import { CommentsOnCouplePhotoModel } from 'src/dtos/comments-on-couple-photo-model';
-import { CommentsOnCouplePhotoEntity } from 'src/entity/comments-on-couple-photo.entity';
+import { CommentsOnCouplePhotoModel } from '../../dtos/comments-on-couple-photo-model';
+import { CommentsOnCouplePhotoEntity } from '../../entity/comments-on-couple-photo.entity';
 
 @Injectable()
 export class CommentsCouplePhotoService {

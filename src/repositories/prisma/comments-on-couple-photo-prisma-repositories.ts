@@ -6,8 +6,8 @@ import {
 } from '@nestjs/common';
 
 import { PrismaService } from '../../database/prisma.service';
-import { CommentsOnCouplePhotoEntity } from 'src/entity/comments-on-couple-photo.entity';
-import { CommentsOnCouplePhotoModel } from 'src/dtos/comments-on-couple-photo-model';
+import { CommentsOnCouplePhotoEntity } from '../../entity/comments-on-couple-photo.entity';
+import { CommentsOnCouplePhotoModel } from '../../dtos/comments-on-couple-photo-model';
 import { CommentsOnCouplePhotoRepository } from '../comments-on-couple-photo-repositories';
 
 @Injectable()
